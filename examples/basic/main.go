@@ -10,7 +10,7 @@ package main
 import (
 	"fmt"
 
-	"gekka-config/pkg/hocon"
+	"github.com/sopranoworks/gekka-config/pkg/hocon"
 )
 
 func main() {

@@ -19,7 +19,7 @@ Pure Go HOCON (Human-Optimized Config Object Notation) implementation for Pekko/
 To install the library, run:
 
 ```bash
-go get github.com/takahashi/gekka-config
+go get github.com/sopranoworks/gekka-config
 ```
 
 ## Quick Start
@@ -29,7 +29,7 @@ package main
 
 import (
     "fmt"
-    "github.com/takahashi/gekka-config/pkg/hocon"
+    "github.com/sopranoworks/gekka-config/pkg/hocon"
 )
 
 func main() {
