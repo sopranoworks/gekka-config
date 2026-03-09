@@ -1,0 +1,29 @@
+# Binary relevant files
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test and coverage
+*.test
+*.out
+coverage.txt
+
+# Dependency directory
+# (Uncomment the following line if you are not using Go modules)
+# vendor/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Log files
+*.log
