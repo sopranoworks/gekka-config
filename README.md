@@ -2,7 +2,7 @@
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![CI Status](https://github.com/takahashi/gekka-config/actions/workflows/go.yml/badge.svg?branch=master)
+![CI Status](https://github.com/sopranoworks/gekka-config/actions/workflows/go.yml/badge.svg?branch=master)
 
 Pure Go HOCON (Human-Optimized Config Object Notation) implementation for Pekko/Akka compatibility.
 
@@ -18,7 +18,9 @@ Pure Go HOCON (Human-Optimized Config Object Notation) implementation for Pekko/
 
 To install the library, run:
 
+```bash
 go get github.com/takahashi/gekka-config
+```
 
 ## Quick Start
 
