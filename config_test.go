@@ -110,3 +110,25 @@ func TestConfig_ErrorCases(t *testing.T) {
 		t.Error("expected error when GetConfig on a literal")
 	}
 }
+func TestConfig_Keys(t *testing.T) {
+	input := `
+		a : 1
+		b : hello
+		c : { d : 2 }
+	`
+	root, _ := hocon.NewParser(hocon.NewScanner(input)).Parse()
+	conf := newConfig(root)
+
+	keys := conf.Keys()
+	expected := map[string]bool{"a": true, "b": true, "c": true}
+
+	if len(keys) != 3 {
+		t.Errorf("Expected 3 keys, got %d", len(keys))
+	}
+
+	for _, k := range keys {
+		if !expected[k] {
+			t.Errorf("Unexpected key: %s", k)
+		}
+	}
+}

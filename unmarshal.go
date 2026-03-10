@@ -16,15 +16,49 @@ import (
 	"github.com/sopranoworks/gekka-config/internal/hocon"
 )
 
-// Unmarshal binds the configuration values to the fields of the provided struct pointer.
+// Unmarshal binds the configuration values to the fields of the provided struct or map pointer.
 // It supports `hocon` struct tags for explicit path mapping.
 func Unmarshal(c Config, v interface{}) error {
 	val := reflect.ValueOf(v)
-	if val.Kind() != reflect.Ptr || val.Elem().Kind() != reflect.Struct {
-		return fmt.Errorf("unmarshal requires a pointer to a struct")
+	if val.Kind() != reflect.Ptr {
+		return fmt.Errorf("unmarshal requires a pointer")
 	}
 
-	return unmarshalObject(c, val.Elem())
+	elem := val.Elem()
+	switch elem.Kind() {
+	case reflect.Struct:
+		return unmarshalObject(c, elem)
+	case reflect.Map:
+		return unmarshalMap(c, elem)
+	default:
+		return fmt.Errorf("unmarshal requires a pointer to a struct or map")
+	}
+}
+
+func unmarshalMap(c Config, mapVal reflect.Value) error {
+	if c.root == nil {
+		return nil
+	}
+
+	mapType := mapVal.Type()
+	if mapType.Key().Kind() != reflect.String {
+		return fmt.Errorf("map unmarshaling requires string keys")
+	}
+
+	if mapVal.IsNil() {
+		mapVal.Set(reflect.MakeMap(mapType))
+	}
+
+	for k := range c.root.Fields {
+		elemVal := reflect.New(mapType.Elem()).Elem()
+		err := unmarshalField(c, k, elemVal)
+		if err != nil {
+			return fmt.Errorf("failed to unmarshal map key %s: %w", k, err)
+		}
+		mapVal.SetMapIndex(reflect.ValueOf(k), elemVal)
+	}
+
+	return nil
 }
 
 func unmarshalObject(c Config, structVal reflect.Value) error {
@@ -131,6 +165,11 @@ func unmarshalField(c Config, path string, fieldVal reflect.Value) error {
 				}
 				fieldVal.Set(slice)
 			}
+		}
+	case reflect.Map:
+		subConfig, err := c.GetConfig(path)
+		if err == nil {
+			return unmarshalMap(subConfig, fieldVal)
 		}
 	}
 

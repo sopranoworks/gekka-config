@@ -141,3 +141,48 @@ func TestUnmarshal_Slice(t *testing.T) {
 		t.Errorf("Nums = %v, want [1 2 3]", cfg.Nums)
 	}
 }
+func TestUnmarshal_Map(t *testing.T) {
+	input := `
+		deployments {
+			actor1 : "host1:8080"
+			actor2 : "host2:8080"
+		}
+		counts {
+			a : 1
+			b : 2
+		}
+	`
+	scanner := hocon.NewScanner(input)
+	parser := hocon.NewParser(scanner)
+	obj, _ := parser.Parse()
+	conf := newConfig(obj)
+
+	type ConfigStruct struct {
+		Deployments map[string]string
+		Counts      map[string]int
+	}
+
+	var cfg ConfigStruct
+	err := conf.Unmarshal(&cfg)
+	if err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+
+	if len(cfg.Deployments) != 2 || cfg.Deployments["actor1"] != "host1:8080" {
+		t.Errorf("Deployments = %v", cfg.Deployments)
+	}
+	if len(cfg.Counts) != 2 || cfg.Counts["b"] != 2 {
+		t.Errorf("Counts = %v", cfg.Counts)
+	}
+
+	// Test direct map unmarshaling
+	var directMap map[string]int
+	sub, _ := conf.GetConfig("counts")
+	err = sub.Unmarshal(&directMap)
+	if err != nil {
+		t.Fatalf("Direct map unmarshal failed: %v", err)
+	}
+	if directMap["a"] != 1 {
+		t.Errorf("directMap['a'] = %v", directMap["a"])
+	}
+}

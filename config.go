@@ -164,6 +164,19 @@ func (c Config) Unmarshal(v interface{}) error {
 	return Unmarshal(c, v)
 }
 
+// Keys returns all top-level keys in the current configuration object.
+func (c Config) Keys() []string {
+	if c.root == nil {
+		return nil
+	}
+
+	keys := make([]string, 0, len(c.root.Fields))
+	for k := range c.root.Fields {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
 // root returns the internal root object.
 func (c Config) getRoot() *hocon.Object {
 	return c.root
