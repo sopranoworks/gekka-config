@@ -7,22 +7,9 @@
  */
 package hocon
 
-// WithFallback returns a new Config where the current config takes precedence,
-// and the provided fallback config provides values for missing keys.
-// If a key exists as an object in both, they are merged recursively.
-func (c Config) WithFallback(fallback Config) Config {
-	if c.root == nil {
-		return fallback
-	}
-	if fallback.root == nil {
-		return c
-	}
-
-	mergedRoot := mergeObjectsRecursive(c.root, fallback.root)
-	return NewConfig(mergedRoot)
-}
-
-func mergeObjectsRecursive(primary, secondary *Object) *Object {
+// MergeObjectsRecursive merges two objects recursively.
+// The primary object's values take precedence over the secondary object's.
+func MergeObjectsRecursive(primary, secondary *Object) *Object {
 	// Create a new object for immutability
 	merged := NewObject()
 
@@ -36,7 +23,7 @@ func mergeObjectsRecursive(primary, secondary *Object) *Object {
 		if primaryVal, isObj := v.(*Object); isObj {
 			if secondaryVal, wasObj := merged.Fields[k].(*Object); wasObj {
 				// Both are objects, merge recursively
-				merged.Fields[k] = mergeObjectsRecursive(primaryVal, secondaryVal)
+				merged.Fields[k] = MergeObjectsRecursive(primaryVal, secondaryVal)
 				continue
 			}
 		}

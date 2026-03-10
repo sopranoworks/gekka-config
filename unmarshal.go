@@ -5,13 +5,15 @@
  * Copyright (c) 2026 Sopranoworks, Osamu Takahashi
  * SPDX-License-Identifier: MIT
  */
-package hocon
+package config
 
 import (
 	"fmt"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/sopranoworks/gekka-config/internal/hocon"
 )
 
 // Unmarshal binds the configuration values to the fields of the provided struct pointer.
@@ -67,8 +69,6 @@ func unmarshalField(c Config, path string, fieldVal reflect.Value) error {
 		d, err := c.GetDuration(path)
 		if err != nil {
 			return nil // Skip if not found, or should we return error?
-			// Actually HOCON standard usually skips if path is not found unless required.
-			// But GetDuration returns error if path is missing.
 		}
 		fieldVal.Set(reflect.ValueOf(d))
 		return nil
@@ -91,10 +91,10 @@ func unmarshalField(c Config, path string, fieldVal reflect.Value) error {
 			fieldVal.SetBool(b)
 		}
 	case reflect.Float32, reflect.Float64:
-		// We don't have GetFloat, but we can use GetValue and check Literal
-		val, err := c.GetValue(path)
+		// We don't have GetFloat, but we can use getValue and check Literal
+		val, err := c.getValue(path)
 		if err == nil {
-			if lit, ok := val.(*Literal); ok {
+			if lit, ok := val.(*hocon.Literal); ok {
 				switch f := lit.Value.(type) {
 				case float64:
 					fieldVal.SetFloat(f)
@@ -119,9 +119,9 @@ func unmarshalField(c Config, path string, fieldVal reflect.Value) error {
 			}
 		}
 	case reflect.Slice:
-		val, err := c.GetValue(path)
+		val, err := c.getValue(path)
 		if err == nil {
-			if list, ok := val.(*List); ok {
+			if list, ok := val.(*hocon.List); ok {
 				slice := reflect.MakeSlice(fieldVal.Type(), len(list.Elements), len(list.Elements))
 				for i, elem := range list.Elements {
 					err := setReflectValue(slice.Index(i), elem)
@@ -137,20 +137,20 @@ func unmarshalField(c Config, path string, fieldVal reflect.Value) error {
 	return nil
 }
 
-func setReflectValue(v reflect.Value, hValue Value) error {
+func setReflectValue(v reflect.Value, hValue hocon.Value) error {
 	switch v.Kind() {
 	case reflect.String:
-		if lit, ok := hValue.(*Literal); ok {
+		if lit, ok := hValue.(*hocon.Literal); ok {
 			v.SetString(fmt.Sprint(lit.Value))
 		}
 	case reflect.Int, reflect.Int64:
-		if lit, ok := hValue.(*Literal); ok {
+		if lit, ok := hValue.(*hocon.Literal); ok {
 			if i, ok := lit.Value.(int); ok {
 				v.SetInt(int64(i))
 			}
 		}
 	case reflect.Bool:
-		if lit, ok := hValue.(*Literal); ok {
+		if lit, ok := hValue.(*hocon.Literal); ok {
 			if b, ok := lit.Value.(bool); ok {
 				v.SetBool(b)
 			}

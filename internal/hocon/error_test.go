@@ -13,11 +13,13 @@ import (
 
 func TestError_CircularDependency(t *testing.T) {
 	input := `a = ${b}, b = ${a}`
-	conf, err := ParseString(input)
+	scanner := NewScanner(input)
+	parser := NewParser(scanner)
+	obj, err := parser.Parse()
 	if err != nil {
 		t.Fatalf("Failed to parse: %v", err)
 	}
-	_, err = conf.Resolve()
+	_, err = Resolve(obj)
 	if err == nil {
 		t.Error("Expected error for circular dependency, got nil")
 	}
@@ -25,7 +27,9 @@ func TestError_CircularDependency(t *testing.T) {
 
 func TestError_SyntaxError(t *testing.T) {
 	input := `a { b = }`
-	_, err := ParseString(input)
+	scanner := NewScanner(input)
+	parser := NewParser(scanner)
+	_, err := parser.Parse()
 	if err == nil {
 		t.Error("Expected syntax error, got nil")
 	}

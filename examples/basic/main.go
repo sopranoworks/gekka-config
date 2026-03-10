@@ -10,7 +10,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/sopranoworks/gekka-config/pkg/hocon"
+	config "github.com/sopranoworks/gekka-config"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
             cluster.seed-nodes = ["pekko://system@127.0.0.1:25520"]
         }
     `
-	conf, err := hocon.ParseString(input)
+	conf, err := config.ParseString(input)
 	if err != nil {
 		fmt.Printf("Error parsing: %v\n", err)
 		return

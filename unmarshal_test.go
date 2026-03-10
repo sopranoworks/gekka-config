@@ -5,11 +5,13 @@
  * Copyright (c) 2026 Sopranoworks, Osamu Takahashi
  * SPDX-License-Identifier: MIT
  */
-package hocon
+package config
 
 import (
 	"testing"
 	"time"
+
+	"github.com/sopranoworks/gekka-config/internal/hocon"
 )
 
 func TestUnmarshal_Basic(t *testing.T) {
@@ -19,10 +21,10 @@ func TestUnmarshal_Basic(t *testing.T) {
 		enabled : true
 		timeout : 5s
 	`
-	scanner := NewScanner(input)
-	parser := NewParser(scanner)
+	scanner := hocon.NewScanner(input)
+	parser := hocon.NewParser(scanner)
 	obj, _ := parser.Parse()
-	conf := NewConfig(obj)
+	conf := newConfig(obj)
 
 	type ConfigStruct struct {
 		Name    string
@@ -57,10 +59,10 @@ func TestUnmarshal_Tags(t *testing.T) {
 			path : "tagged-value"
 		}
 	`
-	scanner := NewScanner(input)
-	parser := NewParser(scanner)
+	scanner := hocon.NewScanner(input)
+	parser := hocon.NewParser(scanner)
 	obj, _ := parser.Parse()
-	conf := NewConfig(obj)
+	conf := newConfig(obj)
 
 	type ConfigStruct struct {
 		Mapped string `hocon:"nested.path"`
@@ -84,10 +86,10 @@ func TestUnmarshal_Nested(t *testing.T) {
 			port : 8080
 		}
 	`
-	scanner := NewScanner(input)
-	parser := NewParser(scanner)
+	scanner := hocon.NewScanner(input)
+	parser := hocon.NewParser(scanner)
 	obj, _ := parser.Parse()
-	conf := NewConfig(obj)
+	conf := newConfig(obj)
 
 	type ServerConfig struct {
 		Host string
@@ -116,10 +118,10 @@ func TestUnmarshal_Slice(t *testing.T) {
 		items : ["a", "b", "c"]
 		nums : [1, 2, 3]
 	`
-	scanner := NewScanner(input)
-	parser := NewParser(scanner)
+	scanner := hocon.NewScanner(input)
+	parser := hocon.NewParser(scanner)
 	obj, _ := parser.Parse()
-	conf := NewConfig(obj)
+	conf := newConfig(obj)
 
 	type ConfigStruct struct {
 		Items []string

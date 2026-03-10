@@ -24,6 +24,12 @@ func newResolver(root *Object) *resolver {
 	}
 }
 
+// Resolve is the entry point for resolving substitutions in an Object.
+func Resolve(root *Object) (*Object, error) {
+	r := newResolver(root)
+	return r.resolve()
+}
+
 func (r *resolver) resolve() (*Object, error) {
 	resolved, err := r.resolveValue(r.root)
 	if err != nil {
@@ -94,7 +100,7 @@ func (r *resolver) resolveConcatenation(c *Concatenation) (Value, error) {
 		// HOCON: Objects merge when concatenated
 		result := objects[0]
 		for i := 1; i < len(objects); i++ {
-			result = mergeObjectsRecursive(result, objects[i])
+			result = MergeObjectsRecursive(result, objects[i])
 		}
 		return result, nil
 	}
@@ -132,6 +138,25 @@ func (r *resolver) resolveSubstitution(s *Substitution) (Value, error) {
 }
 
 func (r *resolver) lookupPath(path string) (Value, error) {
-	conf := NewConfig(r.root)
-	return conf.GetValue(path)
+	if path == "" {
+		return r.root, nil
+	}
+
+	parts := strings.Split(path, ".")
+	var current Value = r.root
+
+	for _, part := range parts {
+		obj, ok := current.(*Object)
+		if !ok {
+			return nil, fmt.Errorf("path '%s' not found: '%s' is not an object", path, part)
+		}
+
+		val, ok := obj.Fields[part]
+		if !ok {
+			return nil, fmt.Errorf("path '%s' not found: key '%s' missing", path, part)
+		}
+		current = val
+	}
+
+	return current, nil
 }

@@ -5,7 +5,7 @@
  * Copyright (c) 2026 Sopranoworks, Osamu Takahashi
  * SPDX-License-Identifier: MIT
  */
-package hocon
+package config
 
 import (
 	"testing"
@@ -53,5 +53,33 @@ func TestIntegration_EndToEnd(t *testing.T) {
 
 	if cfg.Addr != "localhost:8080" {
 		t.Errorf("Expected addr localhost:8080, got %q", cfg.Addr)
+	}
+}
+
+func TestIntegration_EnvVariable(t *testing.T) {
+	t.Setenv("APP_PORT", "9090")
+	hoconStr := `
+        app {
+            port = 8080
+            port = ${?APP_PORT}
+        }
+    `
+	conf, err := ParseString(hoconStr)
+	if err != nil {
+		t.Fatalf("Failed to parse: %v", err)
+	}
+
+	resolved, err := conf.Resolve()
+	if err != nil {
+		t.Fatalf("Failed to resolve: %v", err)
+	}
+
+	port, err := resolved.GetInt("app.port")
+	if err != nil {
+		t.Fatalf("Failed to get port: %v", err)
+	}
+
+	if port != 9090 {
+		t.Errorf("Expected port 9090 from env, got %d", port)
 	}
 }

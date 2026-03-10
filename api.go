@@ -5,17 +5,19 @@
  * Copyright (c) 2026 Sopranoworks, Osamu Takahashi
  * SPDX-License-Identifier: MIT
  */
-package hocon
+package config
+
+import "github.com/sopranoworks/gekka-config/internal/hocon"
 
 // ParseString is a convenience function that tokenizes, parses, and wraps
 // a HOCON input string into a Config object.
 func ParseString(input string) (*Config, error) {
-	scanner := NewScanner(input)
-	parser := NewParser(scanner)
+	scanner := hocon.NewScanner(input)
+	parser := hocon.NewParser(scanner)
 	obj, err := parser.Parse()
 	if err != nil {
 		return nil, err
 	}
-	conf := NewConfig(obj)
+	conf := newConfig(obj)
 	return &conf, nil
 }

@@ -5,11 +5,13 @@
  * Copyright (c) 2026 Sopranoworks, Osamu Takahashi
  * SPDX-License-Identifier: MIT
  */
-package hocon
+package config
 
 import (
 	"testing"
 	"time"
+
+	"github.com/sopranoworks/gekka-config/internal/hocon"
 )
 
 func TestConfig_Retrieval(t *testing.T) {
@@ -22,10 +24,10 @@ func TestConfig_Retrieval(t *testing.T) {
 			f : 100ms
 		}
 	`
-	scanner := NewScanner(input)
-	parser := NewParser(scanner)
+	scanner := hocon.NewScanner(input)
+	parser := hocon.NewParser(scanner)
 	obj, _ := parser.Parse()
-	conf := NewConfig(obj)
+	conf := newConfig(obj)
 
 	// String
 	if val, _ := conf.GetString("a"); val != "hello" {
@@ -68,13 +70,13 @@ func TestConfig_WithFallback(t *testing.T) {
 		}
 	`
 
-	p1 := NewParser(NewScanner(input1))
+	p1 := hocon.NewParser(hocon.NewScanner(input1))
 	o1, _ := p1.Parse()
-	c1 := NewConfig(o1)
+	c1 := newConfig(o1)
 
-	p2 := NewParser(NewScanner(input2))
+	p2 := hocon.NewParser(hocon.NewScanner(input2))
 	o2, _ := p2.Parse()
-	c2 := NewConfig(o2)
+	c2 := newConfig(o2)
 
 	merged := c1.WithFallback(c2)
 
@@ -97,8 +99,8 @@ func TestConfig_WithFallback(t *testing.T) {
 
 func TestConfig_ErrorCases(t *testing.T) {
 	input := `a : 1`
-	root, _ := NewParser(NewScanner(input)).Parse()
-	conf := NewConfig(root)
+	root, _ := hocon.NewParser(hocon.NewScanner(input)).Parse()
+	conf := newConfig(root)
 
 	if _, err := conf.GetString("non-existent"); err == nil {
 		t.Error("expected error for non-existent key")

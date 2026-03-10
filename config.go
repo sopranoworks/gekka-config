@@ -7,35 +7,37 @@
  */
 // Package hocon provides a pure Go implementation of the HOCON (Human-Optimized Config Object Notation) format.
 // It is designed for zero dependencies and high compatibility with Lightbend's Java implementation.
-package hocon
+package config
 
 import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/sopranoworks/gekka-config/internal/hocon"
 )
 
 // Config wraps the root Object and provides a high-level API for configuration traversal and retrieval.
 type Config struct {
-	root *Object
+	root *hocon.Object
 }
 
-// NewConfig creates a new Config instance wrapping the provided root Object.
-func NewConfig(root *Object) Config {
+// newConfig creates a new Config instance wrapping the provided root Object.
+func newConfig(root *hocon.Object) Config {
 	return Config{root: root}
 }
 
-// GetValue retrieves the raw Value at the given dot-notation path (e.g., "a.b.c").
-func (c Config) GetValue(path string) (Value, error) {
+// getValue retrieves the raw Value at the given dot-notation path (e.g., "a.b.c").
+func (c Config) getValue(path string) (hocon.Value, error) {
 	if path == "" {
 		return c.root, nil
 	}
 
 	parts := strings.Split(path, ".")
-	var current Value = c.root
+	var current hocon.Value = c.root
 
 	for _, part := range parts {
-		obj, ok := current.(*Object)
+		obj, ok := current.(*hocon.Object)
 		if !ok {
 			return nil, fmt.Errorf("path '%s' not found: '%s' is not an object", path, part)
 		}
@@ -52,27 +54,27 @@ func (c Config) GetValue(path string) (Value, error) {
 
 // GetConfig returns a new Config instance rooted at the given path.
 func (c Config) GetConfig(path string) (Config, error) {
-	val, err := c.GetValue(path)
+	val, err := c.getValue(path)
 	if err != nil {
 		return Config{}, err
 	}
 
-	obj, ok := val.(*Object)
+	obj, ok := val.(*hocon.Object)
 	if !ok {
 		return Config{}, fmt.Errorf("value at '%s' is not an object", path)
 	}
 
-	return NewConfig(obj), nil
+	return newConfig(obj), nil
 }
 
 // GetString retrieves the value at path as a string.
 func (c Config) GetString(path string) (string, error) {
-	val, err := c.GetValue(path)
+	val, err := c.getValue(path)
 	if err != nil {
 		return "", err
 	}
 
-	lit, ok := val.(*Literal)
+	lit, ok := val.(*hocon.Literal)
 	if !ok {
 		return "", fmt.Errorf("value at '%s' is not a literal", path)
 	}
@@ -82,12 +84,12 @@ func (c Config) GetString(path string) (string, error) {
 
 // GetInt retrieves the value at path as an integer.
 func (c Config) GetInt(path string) (int, error) {
-	val, err := c.GetValue(path)
+	val, err := c.getValue(path)
 	if err != nil {
 		return 0, err
 	}
 
-	lit, ok := val.(*Literal)
+	lit, ok := val.(*hocon.Literal)
 	if !ok {
 		return 0, fmt.Errorf("value at '%s' is not a literal", path)
 	}
@@ -108,12 +110,12 @@ func (c Config) GetInt(path string) (int, error) {
 
 // GetBoolean retrieves the value at path as a boolean.
 func (c Config) GetBoolean(path string) (bool, error) {
-	val, err := c.GetValue(path)
+	val, err := c.getValue(path)
 	if err != nil {
 		return false, err
 	}
 
-	lit, ok := val.(*Literal)
+	lit, ok := val.(*hocon.Literal)
 	if !ok {
 		return false, fmt.Errorf("value at '%s' is not a literal", path)
 	}
@@ -150,12 +152,11 @@ func (c Config) Resolve() (Config, error) {
 	if c.root == nil {
 		return c, nil
 	}
-	r := newResolver(c.root)
-	resolvedRoot, err := r.resolve()
+	resolvedRoot, err := hocon.Resolve(c.root)
 	if err != nil {
 		return Config{}, err
 	}
-	return NewConfig(resolvedRoot), nil
+	return newConfig(resolvedRoot), nil
 }
 
 // Unmarshal binds the configuration to a struct.
@@ -163,7 +164,7 @@ func (c Config) Unmarshal(v interface{}) error {
 	return Unmarshal(c, v)
 }
 
-// Root returns the internal root object.
-func (c Config) Root() *Object {
+// root returns the internal root object.
+func (c Config) getRoot() *hocon.Object {
 	return c.root
 }

@@ -1,6 +1,6 @@
 # gekka-config
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.0.3-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![CI Status](https://github.com/sopranoworks/gekka-config/actions/workflows/go.yml/badge.svg?branch=master)
 
@@ -29,7 +29,7 @@ package main
 
 import (
     "fmt"
-    "github.com/sopranoworks/gekka-config/pkg/hocon"
+    "github.com/sopranoworks/gekka-config"
 )
 
 func main() {
@@ -41,7 +41,7 @@ func main() {
         }
     `
     // Parse, Resolve, and Access
-    conf, _ := hocon.ParseString(input)
+    conf, _ := config.ParseString(input)
     resolved, _ := conf.Resolve()
     
     name, _ := resolved.GetString("app.name")
