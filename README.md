@@ -1,22 +1,8 @@
-# gekka-config
+# gekka-config 💎
 
-![Version](https://img.shields.io/badge/version-1.0.4-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![CI Status](https://github.com/sopranoworks/gekka-config/actions/workflows/go.yml/badge.svg?branch=main)
-
-Pure Go HOCON (Human-Optimized Config Object Notation) implementation for Pekko/Akka compatibility.
-
-## Features
-
-- Standard HOCON Support: Handles nested objects, lists, and primitives.
-- Substitution Engine: Full support for ${path} and ${?path}.
-- Config Merging: Recursive merging of configurations via layered fallbacks.
-- Struct Binding: Map HOCON directly to Go structs with native type support.
-- Zero Dependencies: Optimized for clean, dependency-free integration.
+**gekka-config** is a zero-dependency, pure Go implementation of HOCON (Human-Optimized Config Object Notation), designed for the gekka Actor System and Pekko/Akka compatibility.
 
 ## Installation
-
-To install the library, run:
 
 ```bash
 go get github.com/sopranoworks/gekka-config
@@ -24,38 +10,49 @@ go get github.com/sopranoworks/gekka-config
 
 ## Quick Start
 
+The most powerful way to use **gekka-config** is mapping HOCON directly to Go structs.
+
 ```go
 package main
 
 import (
     "fmt"
+    "time"
     "github.com/sopranoworks/gekka-config"
 )
 
-func main() {
-    input := `
-        app {
-            name = "GekkaApp"
-            timeout = 5s
-            port = ${?PORT}
-        }
-    `
-    // Parse, Resolve, and Access
-    conf, _ := config.ParseString(input)
-    resolved, _ := conf.Resolve()
-    
-    name, _ := resolved.GetString("app.name")
-    fmt.Printf("App: %s\n", name)
+type AppConfig struct {
+    Name    string        `hocon:"app.name"`
+    Timeout time.Duration `hocon:"app.timeout"`
 }
-``` 
 
-## Features Deep Dive
+func main() {
+    input := `app { name = "GekkaApp", timeout = 5s }`
+    
+    conf, err := config.ParseString(input)
+    if err != nil {
+        panic(err)
+    }
+    resolved, err := conf.Resolve()
+    if err != nil {
+        panic(err)
+    }
 
-1. Parsing: Robust recursive descent parser with coordinate tracking.
-2. Merging: Seamlessly layer environmental, local, and default configs.
-3. Substitution: Built-in environment variable fallback and circularity detection.
-4. Struct Binding: High-performance reflection-based unmarshalling with struct tags.
+    var cfg AppConfig
+    resolved.Unmarshal(&cfg)
+
+    fmt.Printf("App: %s, Timeout: %v\n", cfg.Name, cfg.Timeout)
+}
+```
+
+## Examples
+
+For more advanced usage, check the `/examples` directory:
+
+- **examples/basic/**: Basic key-value retrieval.
+- **examples/unmarshal/**: Complex struct mapping with tags and nested objects.
+- **examples/merging/**: Layering configurations using `WithFallback`.
 
 ## License
 
-MIT License.
+MIT License. Copyright (c) 2026 Sopranoworks, Osamu Takahashi.
