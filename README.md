@@ -1,6 +1,10 @@
 # gekka-config 💎
 
-**gekka-config** is a zero-dependency, pure Go implementation of HOCON (Human-Optimized Config Object Notation), designed for the gekka Actor System and Pekko/Akka compatibility.
+![Version](https://img.shields.io/badge/version-1.0.4-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![CI Status](https://github.com/sopranoworks/gekka-config/actions/workflows/go.yml/badge.svg?branch=main)
+
+gekka-config is a zero-dependency, pure Go implementation of HOCON (Human-Optimized Config Object Notation). Designed as the bedrock configuration engine for the gekka Actor System, it provides high compatibility with the Pekko/Akka ecosystem.
 
 ## Installation
 
@@ -10,7 +14,7 @@ go get github.com/sopranoworks/gekka-config
 
 ## Quick Start
 
-The most powerful way to use **gekka-config** is mapping HOCON directly to Go structs.
+The most powerful way to use gekka-config is mapping HOCON directly to Go structs.
 
 ```go
 package main
@@ -47,11 +51,11 @@ func main() {
 
 ## Examples
 
-For more advanced usage, check the `/examples` directory:
+For more advanced usage, check the [/examples](https://github.com/sopranoworks/gekka-config/tree/main/examples) directory:
 
-- **examples/basic/**: Basic key-value retrieval.
-- **examples/unmarshal/**: Complex struct mapping with tags and nested objects.
-- **examples/merging/**: Layering configurations using `WithFallback`.
+- **basic**: Basic key-value retrieval.
+- **unmarshal**: Complex struct mapping with tags and nested objects.
+- **merging**: Layering configurations using WithFallback.
 
 ## License
 
